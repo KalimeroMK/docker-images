@@ -20,7 +20,7 @@ RUN \
     && add-apt-repository -y ppa:ondrej/php \
     && add-apt-repository -y ppa:ondrej/apache2 \
     && apt-get update \
-    && apt-get install -y curl php-imagick apache2 nano libapache2-mod-php7.3 php7.3-cli php7.3-readline php7.3-mbstring php7.3-zip php7.3-intl php7.3-xml php7.3-json php7.3-curl php7.3-gd php7.3-pgsql php7.3-mysql php7.3-bcmath php7.3-ctype php7.3-pdo php7.3-json php7.3-tokenizer php-pear \
+    && apt-get install -y curl php-imagick zip apache2 nano libapache2-mod-php7.3 php7.3-cli php7.3-readline php7.3-mbstring php7.3-zip php7.3-intl php7.3-xml php7.3-json php7.3-curl php7.3-gd php7.3-pgsql php7.3-mysql php7.3-bcmath php7.3-ctype php7.3-pdo php7.3-json php7.3-tokenizer php-pear \
     # Apache settings
     && cp /dev/null ${APACHE_CONF_DIR}/conf-available/other-vhosts-access-log.conf \
     && rm ${APACHE_CONF_DIR}/sites-enabled/000-default.conf ${APACHE_CONF_DIR}/sites-available/000-default.conf \
