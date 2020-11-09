@@ -21,9 +21,6 @@ docker pull romeoz/docker-apache-php
 
 or other versions (7.3, 7.2, 7.1, 7.0, 5.6, 5.5, 5.4 or 5.3):
 
-```bash
-docker pull romeoz/docker-apache-php:7.1
-```
 
 Alternately you can build the image yourself.
 
