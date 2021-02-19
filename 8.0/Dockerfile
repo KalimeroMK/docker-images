@@ -8,7 +8,7 @@ ENV LANG=${OS_LOCALE} \
     LC_ALL=${OS_LOCALE} \
     DEBIAN_FRONTEND=noninteractive
 ENV APACHE_CONF_DIR=/etc/apache2 \
-    PHP_CONF_DIR=/etc/php/7.3 \
+    PHP_CONF_DIR=/etc/php/8.0 \
     PHP_DATA_DIR=/var/lib/php
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 COPY . /var/www/html
@@ -17,15 +17,15 @@ RUN \
     BUILD_DEPS='software-properties-common' \
     && dpkg-reconfigure locales \
     && apt-get install --no-install-recommends -y $BUILD_DEPS \
-    && add-apt-repository -y ppa:ondrej/php \
+    && apt install software-properties-common\
     && add-apt-repository -y ppa:ondrej/apache2 \
     && add-apt-repository ppa:ondrej/php \
     && apt-get update \
-    && apt-get install -y curl zip apache2 nano php-imagick libapache2-mod-php7.4 php7.4-cli php7.4-readline php7.4-mbstring php7.4-zip php7.4-intl php7.4-xml php7.4-json php7.4-curl php7.4-gd php7.4-pgsql php7.4-mysql php7.4-bcmath php7.4-ctype php7.4-pdo php7.4-json php7.4-tokenizer php-pear \
+    && apt-get install -y curl libapache2-mod-php8.0 php8.0-common php8.0-mysql php8.0-xml php8.0-curl php8.0-gd php8.0-imagick php8.0-cli php8.0-dev php8.0-imap php8.0-mbstring php8.0-opcache php8.0-soap php8.0-zip \
     # Apache settings
     && cp /dev/null ${APACHE_CONF_DIR}/conf-available/other-vhosts-access-log.conf \
     && rm ${APACHE_CONF_DIR}/sites-enabled/000-default.conf ${APACHE_CONF_DIR}/sites-available/000-default.conf \
-    && a2enmod rewrite php7.4 \
+    && a2enmod rewrite php8.0 \
     # Install composer
     && curl -sS https://getcomposer.org/installer | php -- --version=1.8.4 --install-dir=/usr/local/bin --filename=composer \
     # Cleaning

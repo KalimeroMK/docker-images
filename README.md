@@ -16,16 +16,16 @@ Installation
  * Pull the latest version of the image.
  
 ```bash
-docker pull romeoz/docker-apache-php
+docker pull kalimeromk/apache:8.0
 ```
 
-or other versions (7.3, 7.2, 7.1, 7.0, 5.6, 5.5, 5.4 or 5.3):
+or other versions (7.4,7.3, 7.2, 7.1, 7.0, 5.6, 5.5, 5.4 or 5.3):
 
 
 Alternately you can build the image yourself.
 
 ```bash
-git clone https://github.com/romeoz/docker-apache-php.git
+git clone https://github.com/KalimeroMK/docker-images
 cd docker-apache-php
 docker build -t="$USER/docker-apache-php" .
 ```
@@ -36,7 +36,7 @@ Quick Start
 Run the application container:
 
 ```bash
-docker run --name app -d -p 8080:80 romeoz/docker-apache-php
+docker run --name app -d -p 8080:80 kalimeromk/apache:8.0
 ```
 
 The simplest way to login to the app container is to use the `docker exec` command to attach a new process to the running container.
@@ -48,14 +48,14 @@ docker exec -it app bash
 Development/Persistence
 -------------------
 
-For development a volume should be mounted at `/var/www/app/`.
+For development a volume should be mounted at `/var/www/html/`.
 
 The updated run command looks like this.
 
 ```bash
 docker run --name app -d -p 8080:80 \
-  -v /host/to/path/app:/var/www/app/ \
-  romeoz/docker-apache-php
+  -v /host/to/path/app:/var/www/html/ \
+  kalimeromk/apache:8.0
 ```
 
 This will make the development.
@@ -66,9 +66,9 @@ Linked to other container
 As an example, will link with RDBMS PostgreSQL. 
 
 ```bash
-docker network create pg_net
+docker network create mariadb
 
-docker run --name db -d romeoz/docker-postgresql
+docker run --name db -d mariadb:10.3
 ```
 
 Run the application container:
@@ -76,8 +76,8 @@ Run the application container:
 ```bash
 docker run --name app -d -p 8080:80 \
   --net pg_net \
-  -v /host/to/path/app:/var/www/app/ \
-  romeoz/docker-apache-php
+  -v /host/to/path/app:/var/www/www/ \
+  kalimeromk/apache:8.0
 ```
 
 Adding PHP-extension
@@ -90,7 +90,7 @@ You can use one of two choices to install the required php-extensions:
 2. Create your container on based the current. Сontents Dockerfile:
 
 ```
-FROM romeoz/docker-apache-php:5.6
+FROM ubuntu:bionic
 
 RUN apt-get update \
     && apt-get install -y php-mongo \
@@ -165,7 +165,148 @@ Out of the box
 
 >Environment depends on the version of PHP.
 
-License
+>Example docker-compose.yml for apache
+> 
+```
+version: '3'
+networks:
+  laravel:
+services:
+  mysql:
+    platform: "linux/x86_64" // remove this line if not useing M1 chip
+    image: mariadb:10.3
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - laravel
+  php:
+    container_name: php
+    image: kalimeromk/apache:7.4
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    hostname: ogledalo.local
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - laravel
+  app:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    links:
+      - mysql
+    ports:
+      - 8085:80
+    volumes:
+      - /sessions
+    networks:
+      - laravel
+```
+>Example docker-compose.yml for nginx
+
+```
+version: '3'
+services:
+
+  #PHP Service
+  app:
+    image: kalimeromk/php:8.0
+    container_name: app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-network
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8000:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  #MySQL Service
+  mysql:
+    image: arm64v8/mariadb
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql/
+    networks:
+      - app-network
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+#Volumes
+volumes:
+  dbdata:
+    driver: local
+````
+>default.conf file for nginx
+
+```
+server {
+    listen 80;
+    index index.php index.html;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+    root /var/www/public;
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass app:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+        gzip_static on;
+    }
+}
+```
 -------------------
 
 Apache + PHP docker image is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
