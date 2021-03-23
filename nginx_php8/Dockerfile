@@ -1,4 +1,4 @@
-FROM php:8.0.0rc1-fpm
+FROM devilbox/php-fpm-8.1
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y git
