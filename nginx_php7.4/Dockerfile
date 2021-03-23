@@ -1,6 +1,6 @@
 FROM php:7.4-fpm-alpine
 
-RUN apk add icu-dev zip libzip-dev --update --no-cache \
+RUN apk add icu-dev zip libzip-dev libpng libpng-dev libjpeg-turbo-dev libwebp-dev zlib-dev libxpm-dev --no-cache \
     coreutils \
     php7-fpm \
     php7-apcu \
@@ -31,9 +31,10 @@ RUN apk add icu-dev zip libzip-dev --update --no-cache \
     php7-xmlwriter \
     make \
     curl
+
 # Install PHP extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
-RUN docker-php-ext-configure intl && docker-php-ext-install intl
+RUN docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install gd
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
 # Get latest Composer
