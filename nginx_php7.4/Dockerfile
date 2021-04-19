@@ -1,6 +1,6 @@
 FROM php:7.4-fpm-alpine
 
-RUN apk add icu-dev zip libzip-dev libpng libpng-dev libjpeg-turbo-dev libwebp-dev zlib-dev libxpm-dev --no-cache \
+RUN apk add icu-dev musl-dev zip libzip-dev libpng libpng-dev libjpeg-turbo-dev libwebp-dev zlib-dev libxpm-dev --no-cache \
     coreutils \
     php7-fpm \
     php7-apcu \
@@ -31,7 +31,7 @@ RUN apk add icu-dev zip libzip-dev libpng libpng-dev libjpeg-turbo-dev libwebp-d
     php7-xmlwriter \
     make \
     curl
-
+RUN apk add --no-cache $PHPIZE_DEPS && pecl install xdebug && docker-php-ext-enable xdebug
 # Install PHP extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install gd
