@@ -32,11 +32,14 @@ RUN apk add icu-dev musl-dev zip libzip-dev libpng libpng-dev libjpeg-turbo-dev 
     make \
     curl
 RUN apk add --no-cache $PHPIZE_DEPS && pecl install xdebug && docker-php-ext-enable xdebug
+RUN apk add --update nodejs nodejs-npm
 # Install PHP extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install gd
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
+RUN docker-php-ext-install pcntl
+
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
