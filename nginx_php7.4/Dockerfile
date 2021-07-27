@@ -39,6 +39,7 @@ RUN docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-e
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install pcntl
+RUN docker-php-ext-install soap
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
