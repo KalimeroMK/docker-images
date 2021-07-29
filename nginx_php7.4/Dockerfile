@@ -10,6 +10,10 @@ RUN apk add icu-dev musl-dev zip libzip-dev freetype-dev libpng libpng-dev libjp
     php7-gd \
     php7-iconv \
     php7-imagick \
+    openssh-client \
+    imagemagick \
+    imagemagick-libs \
+    imagemagick-dev \
     php7-json \
     php7-intl \
     php7-mcrypt \
@@ -37,8 +41,8 @@ RUN apk add --update npm
 # Install PHP extensions
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
-RUN docker-php-ext-install gd 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+RUN docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
+    && docker-php-ext-install gd
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
