@@ -32,15 +32,17 @@ RUN apk add icu-dev musl-dev zip libzip-dev freetype-dev libpng libpng-dev libjp
     make \
     curl
 RUN apk add --no-cache $PHPIZE_DEPS && pecl install xdebug && docker-php-ext-enable xdebug
-#RUN apk add --update nodejs nodejs-npm
+RUN apk add --update nodejs npm
+RUN apk add --update npm
 # Install PHP extensions
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-install intl
+RUN docker-php-ext-install gd 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install mysqli pdo pdo_mysql
-RUN docker-php-ext-configure intl && docker-php-ext-install intl && docker-php-ext-install gd
 RUN docker-php-ext-configure zip
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install pcntl
-RUN docker-php-ext-install xml
 RUN docker-php-ext-install soap
 
 # Get latest Composer
