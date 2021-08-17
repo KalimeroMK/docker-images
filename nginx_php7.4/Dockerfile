@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine
+FROM php:fpm-alpine3.14
 
 RUN apk add icu-dev musl-dev zip libzip-dev freetype-dev libpng libpng-dev libjpeg-turbo-dev libxml2 libxslt-dev libwebp-dev zlib-dev libxpm-dev --no-cache \
     coreutils \
